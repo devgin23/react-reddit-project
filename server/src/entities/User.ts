@@ -3,6 +3,8 @@ import BaseEntityClass from "./BaseEntityClass"
 import { IsEmail, Length } from "class-validator";
 import { Exclude } from "class-transformer";
 import bcrypt from "bcryptjs";
+import Post from "./Post";
+import Vote from "./Vote";
 
 @Entity("users")
 export class User extends BaseEntityClass {
@@ -26,7 +28,7 @@ export class User extends BaseEntityClass {
     @OneToMany(() => Post, (post) => post.user)
     posts: Post[];
 
-    @OneToMany(() => Vote, (post) => vote.user)
+    @OneToMany(() => Vote, (vote) => vote.user)
     votes: Vote[];
 
     @BeforeInsert()

@@ -2,6 +2,7 @@ import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from "typeorm
 import BaseEntityClass from "./BaseEntityClass";
 import { User } from "./User";
 import { Expose } from "class-transformer";
+import Post from "./Post";
 
 @Entity("subs")
 export default class Sub extends BaseEntityClass {
@@ -42,5 +43,4 @@ export default class Sub extends BaseEntityClass {
         return this.bannerUrn ? `${process.env.APP_URL}/images/%{this.bannerUrn}` :
         undefined;
     }
-}
 }
