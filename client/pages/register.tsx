@@ -13,7 +13,7 @@ const register = () => {
 
     let router = useRouter();
 
-    const handleSummit = async (event: FormEvent) => {
+    const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         try {
             const res = await axios.post('/auth/register', {
@@ -22,7 +22,7 @@ const register = () => {
                 username
             })
             console.log('res', res);
-            // router.push("/login")
+            router.push("/login")
         } catch (error:any) {
             console.log('error', error)
             setErrors(error.response.data || {});
@@ -36,7 +36,7 @@ const register = () => {
                     <h1 className='mb-2 text-lg font-medium text-black'>
                         회원가입
                     </h1>
-                    <form onSubmit={handleSummit}>
+                    <form onSubmit={handleSubmit}>
                         <InputGroup 
                             placeholder='Email'
                             value={email}
