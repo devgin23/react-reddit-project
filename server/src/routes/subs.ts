@@ -7,6 +7,20 @@ import { isEmpty } from "class-validator";
 import { DataSource, getRepository } from "typeorm";
 import Sub from "../entities/Sub";
 import { AppDataSource } from "../data-source";
+import Post from "../entities/Post";
+
+const getSub = async (req: Request, res: Response) => {
+    const name = req.params.name;
+
+    try {
+        const sub = await Sub.findOneByOrFail({ name });
+        // 포스트를 생성한 후에 해당 sub에 속하는 포스트 정보들을 넣어주기.
+
+        return res.json(sub);
+    } catch (error) {
+        return res.json(404).json({ error: "서브를 찾을 수 없음"});
+    }
+}
 
 const createSub = async (req: Request, res: Response, next) => {
     const {name, title, description} = req.body;
@@ -54,9 +68,28 @@ const createSub = async (req: Request, res: Response, next) => {
 
 
 }
+const topSubs = async (_:Request, res: Response) => {
+    try {
+        const imageUrlExp = `COALESCE(s."imageUrn", 'https://www.gravatar.com/avatar?d=mp&f=y')`;
+        const subs = await AppDataSource.createQueryBuilder()
+            .select(`s.title, s.name, ${imageUrlExp} as "imageUrl", count(p.id) as "postCount"`)
+            .from(Sub, "s")
+            .leftJoin(Post, "p", `s.name = p."subName"`)
+            .groupBy('s.title, s.name, "imageUrl"')
+            .orderBy(`"postCount"`, "DESC")
+            .limit(5)
+            .execute();
+            return res.json(subs);
 
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "Something went wrong" })
+    }
+}
 const router = Router();
 
+router.get(":name", userMiddleware, getSub);
 router.post("/", userMiddleware, authMiddleware ,createSub);
+router.get("/sub/topSubs", topSubs);
 
 export default router;
