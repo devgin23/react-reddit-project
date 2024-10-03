@@ -14,6 +14,7 @@ const Home: NextPage = () => {
   }
   const address = "http://localhost:4000/api/subs/sub/topSubs"
   const { data: topSubs } = useSWR<Sub[]>(address, fetcher)
+  console.log('topSubs', topSubs)
 
   return (
     <div className="flex max-w-5xl px-4 pt-5 mx-auto">
@@ -37,13 +38,16 @@ const Home: NextPage = () => {
                 className="flex items-center px-4 py-2 text-xs border-b"
               >
                 <Link href={`/r/${sub.name}`}>
-                  <Image
-                    src={sub.imageUrl}
-                    className="rounded-full cursor-pointer"
-                    alt="Sub"
-                    width={24}
-                    height={24}
-                  />
+                  {sub.imageUrl && (
+                    <Image
+                      src={sub.imageUrl}
+                      className="rounded-full cursor-pointer"
+                      alt="Sub"
+                      width={24}
+                      height={24}
+                    />
+                  )}
+
                 </Link>
                 <Link href={`/r/${sub.name}`}
                   className="ml-2 font-bold hover:cursor-pointer">

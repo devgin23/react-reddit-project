@@ -6,6 +6,7 @@ import subRoutes from './routes/subs'
 import cors from 'cors'
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import path from "path";
 
 const app = express();
 const origin = "http://localhost:3000";
@@ -23,7 +24,7 @@ app.get("/", (_, res) => res.send("running"));
 app.use("/api/auth", authRoutes)
 app.use("/api/subs", subRoutes)
 
-
+app.use('/images', express.static(path.join(__dirname, '/public/images')));
 
 let port = 4000;
 
