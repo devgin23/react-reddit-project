@@ -20,7 +20,6 @@ const Sidebar = ( { sub }:any) => {
                         <p>100</p>
                         <p>멤버</p>
                     </div>
-
                 </div>
                 <p className='my-3'>
                     {dayjs(sub?.createdAt).format("D MMM YYYY")}
