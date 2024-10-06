@@ -4,7 +4,7 @@ import { User } from "../entities/User";
 import userMiddleware from "../middlewares/user" 
 import authMiddleware from "../middlewares/auth" 
 import { isEmpty } from "class-validator";
-import { DataSource, getRepository } from "typeorm";
+import { DataSource } from "typeorm";
 import Sub from "../entities/Sub";
 import { AppDataSource } from "../data-source";
 import Post from "../entities/Post";
@@ -18,11 +18,27 @@ const getSub = async (req: Request, res: Response) => {
 
     try {
         const sub = await Sub.findOneByOrFail({ name });
+        
         // 포스트를 생성한 후에 해당 sub에 속하는 포스트 정보들을 넣어주기.
+        const posts = await Post.find({
+            where: { subName: sub.name},
+            order: {createdAt: "DESC"},
+            relations: ["comments", "votes"]
+        })
 
+        sub.posts = posts;
+
+        if(res.locals.user){
+            sub.posts.forEach((p) => p.setUserVote(res.locals.user));
+        }
+        // 투표 생성한 후에 해당 post에 대한 투표 정보들을 넣어주기.
+        
+        
+        console.log('sub', sub);
         return res.json(sub);
     } catch (error) {
-        return res.json(404).json({ error: "서브를 찾을 수 없음"});
+        console.log(error)
+        return res.status(404).json({ error: "서브를 찾을 수 없음"});
     }
 }
 
