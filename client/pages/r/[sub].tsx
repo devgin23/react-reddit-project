@@ -5,23 +5,25 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import useSWR from 'swr';
+import { Post } from '@/type';
+import PostCard from '@/components/PostCard';
 
 const SubPage = () => {
   const [ownSub, setOwnSub] = useState(false);
-  const { authenticated, user} = useAuthState();
+  const { authenticated, user } = useAuthState();
   useEffect(() => {
-    if(!sub || !user) return;
-    setOwnSub( authenticated && user.username === sub.username);
+    if (!sub || !user) return;
+    setOwnSub(authenticated && user.username === sub.username);
   }, [])
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const subName = router.query.sub;
-  const { data: sub, error } = useSWR(subName ? `/subs/${subName}` : null);
+  const { data: sub, error, mutate } = useSWR(subName ? `/subs/${subName}` : null);
   console.log('sub', sub)
 
   const uploadImage = async (event: ChangeEvent<HTMLInputElement>) => {
-    if(event.target.files == null) return;
+    if (event.target.files == null) return;
 
     const file = event.target.files[0]
     console.log('file', file)
@@ -32,14 +34,14 @@ const SubPage = () => {
 
     try {
       await axios.post(`/subs/${sub.name}/upload`, formData, {
-        headers: { "Context-Type": "multipart/form-data"}
+        headers: { "Context-Type": "multipart/form-data" }
       })
     } catch (error) {
       console.log(error);
     }
   }
   const openFileInput = (type: string) => {
-    
+
     // if (!ownSub) return;
     const fileInput = fileInputRef.current
     if (fileInput) {
@@ -48,12 +50,24 @@ const SubPage = () => {
     }
 
   }
+
+  let renderPosts;
+  if(!sub) {
+    renderPosts = <p className='text-lg text-center'>로딩중...</p>
+  } else if (sub.posts.length === 0) {
+    renderPosts = <p className='text-lg text-center'>아직 작성된 포스트가 없습니다.</p>
+  } else {
+    renderPosts = sub.posts.map((post: Post) => (
+      <PostCard key={post.identifier} post={post} subMutate={mutate} />
+    ))
+  }
+
   return (
     <>
       {sub &&
         <>
           <div>
-            <input type="file" hidden={true} ref={fileInputRef} onChange={uploadImage}/>
+            <input type="file" hidden={true} ref={fileInputRef} onChange={uploadImage} />
             {/* 배너 이미지 */}
             <div className='bg-gray-400'>
               {sub.bannerUrl ? (
@@ -84,7 +98,7 @@ const SubPage = () => {
                       className="rounded-full"
                       onClick={() => openFileInput("image")}
                     />
-                    
+
                   )}
                 </div>
                 <div className='pt-1 pl-24'>
@@ -101,7 +115,7 @@ const SubPage = () => {
           </div>
           {/* 포스트와 사이드바 */}
           <div className='flex max-w-5xl px-4 pt-5 mx-auto'>
-            <div className='w-full md:mr-3 md:w-8/12'></div>
+            <div className='w-full md:mr-3 md:w-8/12'>{renderPosts}</div>
             <Sidebar sub={sub}></Sidebar>
           </div>
         </>
